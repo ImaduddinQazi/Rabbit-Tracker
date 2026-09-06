@@ -1,39 +1,56 @@
 <Window x:Class="HabitTracker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Habit Tracker"
-        Height="720" Width="1150"
+        Title="Rabbit Tracker"
+        Icon="Assets/Icon.ico"
+        Height="740" Width="1200"
+        MinHeight="600" MinWidth="900"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E1E">
+        WindowState="Maximized"
+        Background="{DynamicResource WindowBackgroundBrush}">
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Top Bar -->
-        <Border Grid.Row="0" Background="#252526" Padding="15,0">
+        <Border Grid.Row="0" Background="{DynamicResource SurfaceBrush}" Padding="20,0"
+                BorderBrush="{DynamicResource BorderColorBrush}" BorderThickness="0,0,0,1">
             <Grid>
-                <TextBlock x:Name="TxtUserName" 
-                           VerticalAlignment="Center" 
-                           Foreground="#CCCCCC" 
+                <TextBlock x:Name="TxtUserName"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            FontSize="14"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button x:Name="BtnAddReminder" 
-                            Content="+ Reminder" 
-                            Height="30" Width="100"
+                    <Button x:Name="BtnAddReminder"
+                            Content="+ Reminder"
+                            Height="34" Width="112"
                             Margin="0,0,15,0"
-                            Background="#3F3F46" Foreground="White" BorderThickness="0"
+                            Style="{DynamicResource PrimaryButtonStyle}"
                             Click="BtnAddReminder_Click"/>
 
-                    <Button x:Name="BtnNotifications" 
-                            Content="🔔" 
-                            Width="40" Height="30"
-                            Background="Transparent" Foreground="White" BorderThickness="0"
-                            FontSize="16"
-                            Click="BtnNotifications_Click"/>
+                    <Grid Width="40" Height="34">
+                        <Button x:Name="BtnNotifications"
+                                Content="&#128276;"
+                                Width="40" Height="34"
+                                Background="Transparent" Foreground="White" BorderThickness="0"
+                                FontSize="16"
+                                Cursor="Hand"
+                                Click="BtnNotifications_Click"/>
+                        <Border x:Name="NotificationBadge"
+                                Background="{DynamicResource DangerBrush}"
+                                CornerRadius="8" Width="16" Height="16"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Margin="0,-2,-2,0"
+                                Visibility="Collapsed"
+                                IsHitTestVisible="False">
+                            <TextBlock x:Name="TxtBadgeCount" Text="0" FontSize="9" FontWeight="Bold"
+                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
                 </StackPanel>
             </Grid>
         </Border>
@@ -41,50 +58,64 @@
         <!-- Main Content -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="230"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Side Menu -->
-            <Border Grid.Column="0" Background="#252526" Padding="0,20,0,0">
+            <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" Padding="0,20,0,0"
+                    BorderBrush="{DynamicResource BorderColorBrush}" BorderThickness="0,0,1,0">
                 <StackPanel>
-                    <TextBlock Text="Habit Tracker"
-                               FontSize="20" FontWeight="Bold"
+                    <TextBlock Text="&#128007; Rabbit Tracker"
+                               FontSize="19" FontWeight="Bold"
                                Foreground="White" Margin="20,0,0,30"/>
 
-                    <Button x:Name="BtnDashboard" Content="Dashboard"
+                    <Button x:Name="BtnDashboard" Content="&#127968;  Dashboard"
                             Style="{StaticResource MenuButtonStyle}" Click="BtnDashboard_Click"/>
-                    <Button x:Name="BtnDailyGoals" Content="Daily Goals"
+                    <Button x:Name="BtnDailyGoals" Content="&#127919;  Daily Goals"
                             Style="{StaticResource MenuButtonStyle}" Click="BtnDailyGoals_Click"/>
-                    <Button x:Name="BtnDiary" Content="Diary"
+                    <Button x:Name="BtnDiary" Content="&#128220;  Diary"
                             Style="{StaticResource MenuButtonStyle}" Click="BtnDiary_Click"/>
                 </StackPanel>
             </Border>
 
             <!-- Page Content -->
-            <Border Grid.Column="1" Background="#1E1E1E">
+            <Border Grid.Column="1" Background="{DynamicResource WindowBackgroundBrush}">
                 <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
             </Border>
         </Grid>
 
-        <!-- Notification Popup Panel (hidden by default) -->
+        <!-- Notification Popup Panel -->
         <Border x:Name="NotificationPanel"
                 Grid.Row="1"
-                Width="320"
+                Width="330"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
                 Margin="0,10,15,0"
-                Background="#2D2D30"
-                CornerRadius="8"
+                Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource BorderColorBrush}"
+                BorderThickness="1"
+                CornerRadius="10"
                 Visibility="Collapsed"
                 Padding="15">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.4" Color="Black"/>
+            </Border.Effect>
             <DockPanel>
-                <TextBlock DockPanel.Dock="Top" Text="Notifications" 
+                <TextBlock DockPanel.Dock="Top" Text="Notifications"
                            FontWeight="SemiBold" Foreground="White" FontSize="16" Margin="0,0,0,12"/>
-                <ScrollViewer Height="350" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Height="360" VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="NotificationsList"/>
                 </ScrollViewer>
             </DockPanel>
         </Border>
+
+        <!-- Toast notifications (replaces the old blocking MessageBox popup) -->
+        <StackPanel x:Name="ToastContainer"
+                    Grid.Row="1"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,20,20"
+                    Width="330"/>
     </Grid>
 </Window>

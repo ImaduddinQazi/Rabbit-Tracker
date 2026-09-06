@@ -14,13 +14,23 @@ namespace HabitTracker
             InitializeComponent();
             DpStart.SelectedDate = DateTime.Today;
             DpEnd.SelectedDate = DateTime.Today.AddMonths(3);
+
+            CmbRepeat.SetItems(new[]
+            {
+                "Everyday",
+                "Weekdays (Mon-Fri)",
+                "Weekends (Sat-Sun)",
+                "Only Saturday",
+                "Only Sunday",
+                "Custom days..."
+            }, selectedIndex: 0);
         }
 
-        private void CmbRepeat_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void CmbRepeat_SelectionChanged(object sender, int selectedIndex)
         {
             if (CustomDaysPanel == null) return;
 
-            CustomDaysPanel.Visibility = CmbRepeat.SelectedIndex == 5
+            CustomDaysPanel.Visibility = selectedIndex == 5
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }

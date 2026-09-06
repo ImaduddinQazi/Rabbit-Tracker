@@ -25,7 +25,7 @@ namespace HabitTracker
             var profile = new Profile
             {
                 Name = name,
-                Theme = RbDark.IsChecked == true ? "Dark" : "Light",
+                Theme = "Dark", // only theme currently offered
                 IsFirstRunCompleted = true
             };
 

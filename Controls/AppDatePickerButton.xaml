@@ -1,0 +1,14 @@
+<UserControl x:Class="HabitTracker.Controls.AppDatePickerButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:HabitTracker.Controls">
+    <Grid>
+        <Button x:Name="BtnTrigger" Height="40" HorizontalContentAlignment="Left" Click="BtnTrigger_Click"
+                Style="{DynamicResource DatePickerTriggerButtonStyle}"/>
+
+        <Popup x:Name="CalendarPopup" PlacementTarget="{Binding ElementName=BtnTrigger}" StaysOpen="False"
+               AllowsTransparency="True" Placement="Bottom">
+            <local:AppCalendar x:Name="InnerCalendar" DateSelected="InnerCalendar_DateSelected"/>
+        </Popup>
+    </Grid>
+</UserControl>

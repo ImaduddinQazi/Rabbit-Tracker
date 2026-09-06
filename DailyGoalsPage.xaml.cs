@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using HabitTracker.Helpers;
 using HabitTracker.Models;
 using HabitTracker.Services;
 
@@ -16,7 +17,7 @@ namespace HabitTracker
         public DailyGoalsPage()
         {
             InitializeComponent();
-            TxtToday.Text = $"Today • {DateTime.Today:dddd, dd MMMM yyyy}";
+            TxtToday.Text = $"Today \u2022 {DateTime.Today:dddd, dd MMMM yyyy}";
             LoadGoals();
         }
 
@@ -41,33 +42,16 @@ namespace HabitTracker
             RefreshList();
         }
 
-        private bool ShouldShowToday(Goal goal)
-        {
-            if (!goal.IsActive) return false;
-            if (DateTime.Today < goal.StartDate.Date || DateTime.Today > goal.EndDate.Date)
-                return false;
-
-            string today = DateTime.Today.DayOfWeek.ToString(); // "Monday", "Sunday"...
-
-            return goal.RepeatType switch
-            {
-                "Everyday" => true,
-                "Weekdays" => today is "Monday" or "Tuesday" or "Wednesday" or "Thursday" or "Friday",
-                "Weekends" => today is "Saturday" or "Sunday",
-                "Saturday" => today == "Saturday",
-                "Sunday" => today == "Sunday",
-                "Custom" => goal.CustomDays.Contains(today),
-                _ => true
-            };
-        }
-
         private void RefreshList()
         {
             GoalsPanel.Children.Clear();
 
+            // Completed goals are kept in the list (not hidden) - they're just
+            // sorted to the bottom and rendered with a strikethrough.
             var todayGoals = _allGoals
-                .Where(g => ShouldShowToday(g) && g.CurrentProgress < g.TargetCount)
-                .OrderBy(g => g.Title)
+                .Where(g => GoalHelper.ShouldShowOn(g, DateTime.Today))
+                .OrderBy(g => g.CurrentProgress >= g.TargetCount)
+                .ThenBy(g => g.Title)
                 .ToList();
 
             if (todayGoals.Count == 0)
@@ -75,7 +59,7 @@ namespace HabitTracker
                 var empty = new TextBlock
                 {
                     Text = "No goals scheduled for today.\nClick \"+ Add Goal\" to create one.",
-                    Foreground = new SolidColorBrush(Color.FromRgb(120, 120, 120)),
+                    Foreground = (Brush)FindResource("TextMutedBrush"),
                     FontSize = 15,
                     TextAlignment = TextAlignment.Center,
                     Margin = new Thickness(0, 70, 0, 0)
@@ -92,12 +76,12 @@ namespace HabitTracker
 
         private Border CreateGoalCard(Goal goal)
         {
+            bool isComplete = goal.CurrentProgress >= goal.TargetCount;
+
             var card = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(45, 45, 48)),
-                CornerRadius = new CornerRadius(10),
-                Padding = new Thickness(18),
-                Margin = new Thickness(0, 0, 0, 12)
+                Style = (Style)FindResource("GoalCardStyle"),
+                Opacity = isComplete ? 0.55 : 1.0
             };
 
             var grid = new Grid();
@@ -112,43 +96,58 @@ namespace HabitTracker
                 Text = goal.Title,
                 FontSize = 16,
                 FontWeight = FontWeights.SemiBold,
-                Foreground = Brushes.White
+                Foreground = Brushes.White,
+                TextDecorations = isComplete ? TextDecorations.Strikethrough : null
             };
 
             var progressText = new TextBlock
             {
-                Text = goal.TargetCount == 1
-                    ? "Click to complete"
-                    : $"Progress: {goal.CurrentProgress} / {goal.TargetCount}",
+                Text = isComplete
+                    ? "Completed \u2713"
+                    : (goal.TargetCount == 1 ? "Click to complete" : $"Progress: {goal.CurrentProgress} / {goal.TargetCount}"),
                 FontSize = 13,
-                Foreground = new SolidColorBrush(Color.FromRgb(160, 160, 160)),
+                Foreground = isComplete ? (Brush)FindResource("SuccessBrush") : (Brush)FindResource("TextSecondaryBrush"),
                 Margin = new Thickness(0, 6, 0, 0)
             };
 
             left.Children.Add(title);
             left.Children.Add(progressText);
 
-            // Right side - Complete button
-            var btn = new Button
-            {
-                Content = goal.TargetCount == 1 ? "Complete" : "+1",
-                Width = 90,
-                Height = 34,
-                Background = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
-                Foreground = Brushes.White,
-                BorderThickness = new Thickness(0),
-                Cursor = System.Windows.Input.Cursors.Hand,
-                Tag = goal
-            };
-            btn.Click += BtnComplete_Click;
-
             Grid.SetColumn(left, 0);
-            Grid.SetColumn(btn, 1);
-
             grid.Children.Add(left);
-            grid.Children.Add(btn);
-            card.Child = grid;
 
+            if (!isComplete)
+            {
+                // Right side - Complete button (only shown while incomplete)
+                var btn = new Button
+                {
+                    Content = goal.TargetCount == 1 ? "Complete" : "+1",
+                    Width = 90,
+                    Height = 36,
+                    Style = (Style)FindResource("PrimaryButtonStyle"),
+                    Tag = goal
+                };
+                btn.Click += BtnComplete_Click;
+
+                Grid.SetColumn(btn, 1);
+                grid.Children.Add(btn);
+            }
+            else
+            {
+                var check = new TextBlock
+                {
+                    Text = "\u2713",
+                    FontSize = 22,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = (Brush)FindResource("SuccessBrush"),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(10, 0, 0, 0)
+                };
+                Grid.SetColumn(check, 1);
+                grid.Children.Add(check);
+            }
+
+            card.Child = grid;
             return card;
         }
 
@@ -156,17 +155,20 @@ namespace HabitTracker
         {
             if (sender is Button btn && btn.Tag is Goal goal)
             {
+                if (goal.CurrentProgress >= goal.TargetCount) return; // safety guard
+
                 goal.CurrentProgress++;
                 goal.LastProgressDate = DateTime.Today;
 
                 DataService.SaveGoals(_allGoals);
+                DataService.AddGoalCompletionPoint(DateTime.Today); // feeds Dashboard streak/heatmap
+
                 RefreshList();
             }
         }
 
         private void BtnAddGoal_Click(object sender, RoutedEventArgs e)
         {
-            // We will create a proper Add Goal window next
             var addWindow = new AddGoalWindow();
             addWindow.Owner = Window.GetWindow(this);
 

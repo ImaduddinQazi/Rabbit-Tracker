@@ -1,0 +1,17 @@
+<UserControl x:Class="HabitTracker.Controls.AppDropdown"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Button x:Name="BtnTrigger" Height="40" HorizontalContentAlignment="Left" Click="BtnTrigger_Click"
+                Style="{DynamicResource DropdownTriggerButtonStyle}"/>
+
+        <Popup x:Name="DropdownPopup" PlacementTarget="{Binding ElementName=BtnTrigger}" StaysOpen="False"
+               AllowsTransparency="True" Placement="Bottom">
+            <Border Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderColorBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="4"
+                    MinWidth="{Binding ActualWidth, ElementName=BtnTrigger}">
+                <StackPanel x:Name="ItemsPanel"/>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>

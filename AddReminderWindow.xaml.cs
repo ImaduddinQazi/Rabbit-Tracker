@@ -11,7 +11,17 @@ namespace HabitTracker
         public AddReminderWindow()
         {
             InitializeComponent();
-            DpDate.SelectedDate = DateTime.Today;
+
+            // Default the time to a few minutes from now (rather than a fixed
+            // "09:00") so the dialog validates successfully out of the box -
+            // a hardcoded default is almost always in the past by the time
+            // someone opens this dialog, which made Save look broken.
+            // Uses suggested.Date (not DateTime.Today) so this still works
+            // correctly if "+5 minutes" happens to cross midnight.
+            var suggested = DateTime.Now.AddMinutes(5);
+            DpDate.SelectedDate = suggested.Date;
+            TxtHour.Text = suggested.ToString("HH");
+            TxtMinute.Text = suggested.ToString("mm");
         }
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)

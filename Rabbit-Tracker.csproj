@@ -7,6 +7,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <RootNamespace>RabbitTracker</RootNamespace>
+    <ApplicationIcon>Assets\Icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Non-code assets (like the .ico) aren't picked up by the WPF SDK's
+         automatic .xaml/.cs globbing, so it needs to be listed explicitly. -->
+    <Resource Include="Assets\Icon.ico" />
+  </ItemGroup>
 
 </Project>
