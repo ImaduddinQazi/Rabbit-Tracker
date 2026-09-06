@@ -88,6 +88,15 @@
                         Height="36"
                         Style="{DynamicResource SecondaryButtonStyle}"
                         Click="BtnBookmark_Click"/>
+
+                <Button x:Name="BtnClearText"
+                        Content="Clear Text"
+                        Width="100"
+                        Height="36"
+                        Margin="10,0,0,0"
+                        Style="{DynamicResource SecondaryButtonStyle}"
+                        Click="BtnClearText_Click"
+                        ToolTip="Clear all text for this day's entry"/>
             </StackPanel>
 
             <TextBox x:Name="TxtContent"

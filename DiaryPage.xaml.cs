@@ -82,6 +82,23 @@ namespace HabitTracker
             LoadDate(DateTime.Today);
         }
 
+        private void BtnClearText_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TxtContent.Text)) return; // nothing to clear
+
+            var result = MessageBox.Show(
+                "Clear all text for this day's entry? This cannot be undone.",
+                "Clear Entry",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                TxtContent.Text = string.Empty; // triggers TxtContent_TextChanged -> SaveCurrent()
+                TxtStatus.Text = "Cleared";
+            }
+        }
+
         private void Calendar_DateSelected(object sender, DateTime date)
         {
             if (date != _currentDate)

@@ -86,7 +86,8 @@ namespace HabitTracker
 
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // edit
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // complete / checkmark
 
             // Left side - Title + Progress
             var left = new StackPanel();
@@ -116,6 +117,22 @@ namespace HabitTracker
             Grid.SetColumn(left, 0);
             grid.Children.Add(left);
 
+            // Edit button - shown regardless of completion status.
+            var editBtn = new Button
+            {
+                Content = "\u270E Edit",
+                Width = 70,
+                Height = 36,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 8, 0),
+                Style = (Style)FindResource("SecondaryButtonStyle"),
+                Tag = goal,
+                ToolTip = "Edit this goal"
+            };
+            editBtn.Click += BtnEdit_Click;
+            Grid.SetColumn(editBtn, 1);
+            grid.Children.Add(editBtn);
+
             if (!isComplete)
             {
                 // Right side - Complete button (only shown while incomplete)
@@ -129,7 +146,7 @@ namespace HabitTracker
                 };
                 btn.Click += BtnComplete_Click;
 
-                Grid.SetColumn(btn, 1);
+                Grid.SetColumn(btn, 2);
                 grid.Children.Add(btn);
             }
             else
@@ -141,9 +158,9 @@ namespace HabitTracker
                     FontWeight = FontWeights.Bold,
                     Foreground = (Brush)FindResource("SuccessBrush"),
                     VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness(10, 0, 0, 0)
+                    Margin = new Thickness(2, 0, 0, 0)
                 };
-                Grid.SetColumn(check, 1);
+                Grid.SetColumn(check, 2);
                 grid.Children.Add(check);
             }
 
@@ -164,6 +181,22 @@ namespace HabitTracker
                 DataService.AddGoalCompletionPoint(DateTime.Today); // feeds Dashboard streak/heatmap
 
                 RefreshList();
+            }
+        }
+
+        private void BtnEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is Goal goal)
+            {
+                var editWindow = new AddGoalWindow(goal) { Owner = Window.GetWindow(this) };
+
+                if (editWindow.ShowDialog() == true)
+                {
+                    // AddGoalWindow edited the same Goal reference in place,
+                    // so it's already updated inside _allGoals - just persist and redraw.
+                    DataService.SaveGoals(_allGoals);
+                    RefreshList();
+                }
             }
         }
 
