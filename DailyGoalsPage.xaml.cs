@@ -151,17 +151,34 @@ namespace HabitTracker
             }
             else
             {
-                var check = new TextBlock
+                var checkBtn = new Button
                 {
-                    Text = "\u2713",
+                    Content = "\u2713",
                     FontSize = 22,
                     FontWeight = FontWeights.Bold,
                     Foreground = (Brush)FindResource("SuccessBrush"),
+                    Background = Brushes.Transparent,
+                    BorderThickness = new Thickness(0),
                     VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness(2, 0, 0, 0)
+                    Margin = new Thickness(2, 0, 0, 0),
+                    Tag = goal,
+                    ToolTip = "Click to uncomplete",
+                    Cursor = System.Windows.Input.Cursors.Hand
                 };
-                Grid.SetColumn(check, 2);
-                grid.Children.Add(check);
+                checkBtn.MouseEnter += (s, e) =>
+                {
+                    checkBtn.Content = "\u274C";
+                    checkBtn.Foreground = (Brush)FindResource("DangerBrush");
+                };
+                checkBtn.MouseLeave += (s, e) =>
+                {
+                    checkBtn.Content = "\u2713";
+                    checkBtn.Foreground = (Brush)FindResource("SuccessBrush");
+                };
+                checkBtn.Click += BtnUncomplete_Click;
+
+                Grid.SetColumn(checkBtn, 2);
+                grid.Children.Add(checkBtn);
             }
 
             card.Child = grid;
@@ -181,6 +198,20 @@ namespace HabitTracker
                 DataService.AddGoalCompletionPoint(DateTime.Today); // feeds Dashboard streak/heatmap
 
                 RefreshList();
+            }
+        }
+
+        private void BtnUncomplete_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is Goal goal)
+            {
+                if (goal.CurrentProgress > 0)
+                {
+                    goal.CurrentProgress--;
+                    DataService.SaveGoals(_allGoals);
+                    DataService.RemoveGoalCompletionPoint(DateTime.Today);
+                    RefreshList();
+                }
             }
         }
 

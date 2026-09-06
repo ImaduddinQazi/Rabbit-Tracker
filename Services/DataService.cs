@@ -296,5 +296,16 @@ namespace HabitTracker.Services
             activity[key] = activity.TryGetValue(key, out int v) ? v + 1 : 1;
             SaveGoalActivity(activity);
         }
+
+        public static void RemoveGoalCompletionPoint(DateTime date)
+        {
+            var activity = LoadGoalActivity();
+            string key = date.ToString("yyyy-MM-dd");
+            if (activity.TryGetValue(key, out int v) && v > 0)
+            {
+                activity[key] = v - 1;
+                SaveGoalActivity(activity);
+            }
+        }
     }
 }

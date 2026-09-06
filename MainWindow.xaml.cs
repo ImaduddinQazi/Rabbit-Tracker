@@ -87,7 +87,7 @@ namespace HabitTracker
 
         // ========== Reminders ==========
 
-        private void LoadReminders()
+        public void LoadReminders()
         {
             _reminders = DataService.LoadReminders();
             RefreshNotificationList();
@@ -164,6 +164,14 @@ namespace HabitTracker
             }
 
             RefreshNotificationList();
+        }
+
+        private void BtnClearNotifications_Click(object sender, RoutedEventArgs e)
+        {
+            _reminders.RemoveAll(r => r.IsTriggered);
+            DataService.SaveReminders(_reminders);
+            RefreshNotificationList();
+            UpdateBadge();
         }
 
         private void UpdateBadge()

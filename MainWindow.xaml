@@ -66,7 +66,7 @@
             <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" Padding="0,20,0,0"
                     BorderBrush="{DynamicResource BorderColorBrush}" BorderThickness="0,0,1,0">
                 <StackPanel>
-                    <TextBlock Text="&#128007; Rabbit Tracker"
+                    <TextBlock Text="Rabbit Tracker"
                                FontSize="19" FontWeight="Bold"
                                Foreground="White" Margin="20,0,0,30"/>
 
@@ -102,8 +102,15 @@
                 <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.4" Color="Black"/>
             </Border.Effect>
             <DockPanel>
-                <TextBlock DockPanel.Dock="Top" Text="Notifications"
-                           FontWeight="SemiBold" Foreground="White" FontSize="16" Margin="0,0,0,12"/>
+                <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                    <TextBlock Text="Notifications"
+                               FontWeight="SemiBold" Foreground="White" FontSize="16" VerticalAlignment="Center"/>
+                    <Button x:Name="BtnClearNotifications" Content="Clear All"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Background="Transparent" Foreground="{DynamicResource DangerBrush}"
+                            BorderThickness="0" Cursor="Hand"
+                            Click="BtnClearNotifications_Click"/>
+                </Grid>
                 <ScrollViewer Height="360" VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="NotificationsList"/>
                 </ScrollViewer>

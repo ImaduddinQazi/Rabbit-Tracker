@@ -186,6 +186,7 @@ namespace HabitTracker
                 var grid = new Grid();
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
                 var left = new StackPanel();
                 left.Children.Add(new TextBlock { Text = r.Title, Foreground = Brushes.White, FontWeight = FontWeights.SemiBold, FontSize = 14 });
@@ -210,10 +211,35 @@ namespace HabitTracker
                     VerticalAlignment = VerticalAlignment.Center
                 };
 
+                var delBtn = new Button
+                {
+                    Content = "\uD83D\uDDD1",
+                    Width = 24, Height = 24,
+                    Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                    Foreground = (Brush)FindResource("DangerBrush"),
+                    Tag = r,
+                    ToolTip = "Delete reminder",
+                    Margin = new Thickness(10, 0, 0, 0),
+                    Cursor = System.Windows.Input.Cursors.Hand
+                };
+                delBtn.Click += (s, e) =>
+                {
+                    if (s is Button btn && btn.Tag is HabitTracker.Models.Reminder rem)
+                    {
+                        var rems = DataService.LoadReminders();
+                        rems.RemoveAll(x => x.Id == rem.Id);
+                        DataService.SaveReminders(rems);
+                        (Application.Current.MainWindow as MainWindow)?.LoadReminders();
+                        LoadUpcomingReminders();
+                    }
+                };
+
                 Grid.SetColumn(left, 0);
                 Grid.SetColumn(when, 1);
+                Grid.SetColumn(delBtn, 2);
                 grid.Children.Add(left);
                 grid.Children.Add(when);
+                grid.Children.Add(delBtn);
 
                 row.Child = grid;
                 UpcomingRemindersPanel.Children.Add(row);
