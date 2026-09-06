@@ -7,7 +7,7 @@
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="420">
 
-            <TextBlock Text="&#128007;" FontSize="46" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+            <!-- <TextBlock Text="&#128007;" FontSize="46" HorizontalAlignment="Center" Margin="0,0,0,10"/> -->
 
             <TextBlock Text="Welcome to Rabbit Tracker"
                        FontSize="28"
